@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Painel de Monitoramento - Tabela Hash</h2>
+    <p>Acompanhe o desempenho e a distribuição dos dados na estrutura.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; text-align: center;">
+        <div class="card" style="background: var(--primary-color); color: white; margin: 0; padding: 1rem;">
+            <h3>Capacidade</h3>
+            <p style="font-size: 1.8rem; font-weight: bold; margin: 0;">{{ stats.capacidade }}</p>
+        </div>
+        <div class="card" style="background: var(--primary-color); color: white; margin: 0; padding: 1rem;">
+            <h3>Registros</h3>
+            <p style="font-size: 1.8rem; font-weight: bold; margin: 0;">{{ stats.quantidade_registros }}</p>
+        </div>
+        <div class="card" style="background: var(--primary-color); color: white; margin: 0; padding: 1rem;">
+            <h3>Fator Carga</h3>
+            <p style="font-size: 1.8rem; font-weight: bold; margin: 0;">{{ stats.fator_carga }}</p>
+        </div>
+        <div class="card" style="background: var(--danger); color: white; margin: 0; padding: 1rem;">
+            <h3>Colisões</h3>
+            <p style="font-size: 1.8rem; font-weight: bold; margin: 0;">{{ stats.colisoes }}</p>
+        </div>
+    </div>
+    
+    <h3 style="margin-top: 2rem;">Distribuição nos Buckets (Posições da Tabela)</h3>
+    
+    {% macro render_lista(nodo) %}
+        <span style="background: #e5e7eb; padding: 4px 8px; border-radius: 4px; font-family: monospace; border: 1px solid #ccc; color: #000;">
+            {{ nodo.chave }}
+        </span>
+        {% if nodo.proximo %}
+            <span style="color: var(--primary-color); font-weight: bold;"> ➔ </span>
+            {{ render_lista(nodo.proximo) }}
+        {% endif %}
+    {% endmacro %}
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 10%;">Índice</th>
+                <th style="width: 20%;">Status</th>
+                <th>Chaves (Encadeamento Separado)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(stats.capacidade) %}
+            <tr>
+                <td><strong>{{ i }}</strong></td>
+                {% if tabela[i] %}
+                    <td style="color: var(--success); font-weight: bold;">Ocupado</td>
+                    <td>{{ render_lista(tabela[i]) }}</td>
+                {% else %}
+                    <td style="color: #9ca3af;">Vazio</td>
+                    <td style="color: #9ca3af;">-</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

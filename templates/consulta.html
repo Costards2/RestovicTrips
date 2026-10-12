@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Consultar Cobertura</h2>
+    <form action="{{ url_for('consulta') }}" method="POST">
+        <label for="codigo">Código do País (2 letras):</label>
+        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+            <input type="text" id="codigo" name="codigo" required maxlength="2" placeholder="Ex: IT" style="width: 200px;">
+            <button type="submit" class="btn btn-success">Verificar Cobertura</button>
+        </div>
+    </form>
+
+    {% if resultado %}
+    <div class="card" style="margin-top: 2rem; border: 2px solid var(--success); text-align: center;">
+        <h3 style="color: var(--success); margin-top: 0;">COBERTURA DISPONÍVEL</h3>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 1rem 0;">
+        <p><strong>País:</strong> {{ resultado.pais }}</p>
+        <p><strong>Região:</strong> {{ resultado.regiao }}</p>
+        <p><strong>Operadora:</strong> {{ resultado.operadora }}</p>
+        <p><strong>Tecnologia:</strong> {{ resultado.tecnologia }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

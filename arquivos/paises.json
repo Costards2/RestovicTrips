@@ -1,0 +1,58 @@
+[
+    {
+        "codigo": "CA",
+        "pais": "Canadá",
+        "regiao": "América do Norte",
+        "operadora": "Rogers",
+        "tecnologia": "5G"
+    },
+    {
+        "codigo": "JP",
+        "pais": "Japão",
+        "regiao": "Ásia",
+        "operadora": "NTT Docomo",
+        "tecnologia": "5G"
+    },
+    {
+        "codigo": "IT",
+        "pais": "Itália",
+        "regiao": "Europa",
+        "operadora": "Operadora IT",
+        "tecnologia": "5G"
+    },
+    {
+        "codigo": "US",
+        "pais": "Estados Unidos",
+        "regiao": "América do Norte",
+        "operadora": "T-Mobile",
+        "tecnologia": "5G"
+    },
+    {
+        "codigo": "BR",
+        "pais": "Brasil",
+        "regiao": "América do Sul",
+        "operadora": "VivoSIM",
+        "tecnologia": "5G"
+    },
+    {
+        "codigo": "ES",
+        "pais": "Espanha",
+        "regiao": "Europa",
+        "operadora": "Movistar",
+        "tecnologia": "5G"
+    },
+    {
+        "codigo": "FR",
+        "pais": "França",
+        "regiao": "Europa",
+        "operadora": "Orange",
+        "tecnologia": "5G"
+    },
+    {
+        "codigo": "PT",
+        "pais": "Portugal",
+        "regiao": "Europa",
+        "operadora": "MEO",
+        "tecnologia": "5G"
+    }
+]

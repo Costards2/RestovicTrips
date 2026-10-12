@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Editar País: {{ pais.codigo }}</h2>
+    <form action="{{ url_for('editar', codigo=pais.codigo) }}" method="POST">
+        <label for="codigo">Código do País:</label>
+        <input type="text" id="codigo" value="{{ pais.codigo }}" disabled style="background-color: #e5e7eb;">
+        
+        <label for="pais">Nome do País:</label>
+        <input type="text" id="pais" name="pais" value="{{ pais.pais }}" required>
+        
+        <label for="regiao">Região:</label>
+        <input type="text" id="regiao" name="regiao" value="{{ pais.regiao }}" required>
+        
+        <label for="operadora">Operadora:</label>
+        <input type="text" id="operadora" name="operadora" value="{{ pais.operadora }}" required>
+        
+        <label for="tecnologia">Tecnologia (ex: 5G, 4G):</label>
+        <input type="text" id="tecnologia" name="tecnologia" value="{{ pais.tecnologia }}" required>
+        
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            <a href="{{ url_for('paises') }}" class="btn" style="background-color: #6b7280; text-align: center;">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

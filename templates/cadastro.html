@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Cadastrar Novo País</h2>
+    <form action="{{ url_for('cadastro') }}" method="POST">
+        <label for="codigo">Código do País (2 letras):</label>
+        <input type="text" id="codigo" name="codigo" required maxlength="2" placeholder="Ex: BR, PT, US">
+        
+        <label for="pais">Nome do País:</label>
+        <input type="text" id="pais" name="pais" required>
+        
+        <label for="regiao">Região:</label>
+        <input type="text" id="regiao" name="regiao" required>
+        
+        <label for="operadora">Operadora:</label>
+        <input type="text" id="operadora" name="operadora" required>
+        
+        <label for="tecnologia">Tecnologia (ex: 5G, 4G):</label>
+        <input type="text" id="tecnologia" name="tecnologia" required>
+        
+        <button type="submit" class="btn btn-success">Cadastrar País</button>
+    </form>
+</div>
+{% endblock %}

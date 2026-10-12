@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Países Cadastrados</h2>
+    
+    {% if paises %}
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>País</th>
+                <th>Região</th>
+                <th>Operadora</th>
+                <th>Tecnologia</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pais in paises %}
+            <tr>
+                <td><strong>{{ pais.codigo }}</strong></td>
+                <td>{{ pais.pais }}</td>
+                <td>{{ pais.regiao }}</td>
+                <td>{{ pais.operadora }}</td>
+                <td>{{ pais.tecnologia }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('editar', codigo=pais.codigo) }}" class="btn btn-primary">Editar</a>
+                    <form action="{{ url_for('remover', codigo=pais.codigo) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover o país {{ pais.pais }}?');" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Nenhum país cadastrado no momento.</p>
+    {% endif %}
+</div>
+{% endblock %}

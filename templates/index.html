@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="text-align: center;">
+    <h1 style="color: var(--primary-color);">Bem-vindo à GlobalSIM</h1>
+    <p>Sistema de gerenciamento de cobertura internacional eSIM.</p>
+    
+    <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
+        <a href="{{ url_for('paises') }}" class="btn btn-primary">Ver Países Cadastrados</a>
+        <a href="{{ url_for('consulta') }}" class="btn btn-success">Consultar Cobertura</a>
+    </div>
+</div>
+{% endblock %}
