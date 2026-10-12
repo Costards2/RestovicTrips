@@ -1,0 +1,21 @@
+# Ambientes Virtuais (MUITO IMPORTANTE)
+venv/
+env/
+.env
+
+# Ficheiros compilados do Python (Cache)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ficheiros de Teste
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Configurações de IDEs (VS Code, PyCharm) e SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
