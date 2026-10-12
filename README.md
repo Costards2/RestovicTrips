@@ -1,7 +1,7 @@
 # GlobalSIM - Etapa 1
 
 ## Objetivo do Projeto
-A GlobalSIM é uma aplicação para administrar serviços de internet por eSIM[cite: 1]. A Etapa 1 foca no cadastro de países e verificação de cobertura[cite: 3].
+A GlobalSIM é uma aplicação para administrar serviços de internet por eSIM. A Etapa 1 foca no cadastro de países e verificação de cobertura.
 
 ## Arquitetura e Tabela Hash
 O projeto utiliza Flask para web, JSON para persistência, e uma Tabela Hash customizada para estruturação de dados em memória.
