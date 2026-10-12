@@ -1,4 +1,4 @@
-# GlobalSIM - Etapa 1[cite: 3]
+# GlobalSIM - Etapa 1
 
 ## Objetivo do Projeto
 A GlobalSIM é uma aplicação para administrar serviços de internet por eSIM[cite: 1]. A Etapa 1 foca no cadastro de países e verificação de cobertura[cite: 3].
