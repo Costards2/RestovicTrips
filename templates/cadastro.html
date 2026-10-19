@@ -1,25 +1,45 @@
 {% extends "base.html" %}
 
+{% block title %}Cadastrar País — R-Mobile{% endblock %}
+
 {% block content %}
-<div class="card">
-    <h2>Cadastrar Novo País</h2>
-    <form action="{{ url_for('cadastro') }}" method="POST">
-        <label for="codigo">Código do País (2 letras):</label>
-        <input type="text" id="codigo" name="codigo" required maxlength="2" placeholder="Ex: BR, PT, US">
-        
-        <label for="pais">Nome do País:</label>
-        <input type="text" id="pais" name="pais" required>
-        
-        <label for="regiao">Região:</label>
-        <input type="text" id="regiao" name="regiao" required>
-        
-        <label for="operadora">Operadora:</label>
-        <input type="text" id="operadora" name="operadora" required>
-        
-        <label for="tecnologia">Tecnologia (ex: 5G, 4G):</label>
-        <input type="text" id="tecnologia" name="tecnologia" required>
-        
-        <button type="submit" class="btn btn-success">Cadastrar País</button>
-    </form>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="card-title h3 mb-0">Cadastrar Novo País</h2>
+                    <a href="{{ url_for('paises') }}" class="btn btn-sm btn-outline-secondary">← Voltar</a>
+                </div>
+                <form action="{{ url_for('cadastro') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="codigo" class="form-label fw-semibold">Código do País (2 letras)</label>
+                        <input type="text" class="form-control" id="codigo" name="codigo" required maxlength="2" placeholder="Ex: BR, PT, US" style="text-transform: uppercase;">
+                        <div class="form-text">Código ISO de duas letras utilizado como chave na tabela hash.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pais" class="form-label fw-semibold">Nome do País</label>
+                        <input type="text" class="form-control" id="pais" name="pais" required placeholder="Ex: Brasil">
+                    </div>
+                    <div class="mb-3">
+                        <label for="regiao" class="form-label fw-semibold">Região / Continente</label>
+                        <input type="text" class="form-control" id="regiao" name="regiao" required placeholder="Ex: América do Sul">
+                    </div>
+                    <div class="mb-3">
+                        <label for="operadora" class="form-label fw-semibold">Operadora Parceira</label>
+                        <input type="text" class="form-control" id="operadora" name="operadora" required placeholder="Ex: Claro, Vodafone">
+                    </div>
+                    <div class="mb-4">
+                        <label for="tecnologia" class="form-label fw-semibold">Tecnologia Disponível</label>
+                        <input type="text" class="form-control" id="tecnologia" name="tecnologia" required placeholder="Ex: 5G, 4G">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">Cadastrar País</button>
+                        <a href="{{ url_for('paises') }}" class="btn btn-outline-secondary px-3">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

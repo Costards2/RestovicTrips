@@ -1,13 +1,88 @@
 {% extends "base.html" %}
 
+{% block title %}R-Mobile — Conectividade Global eSIM para Viajantes{% endblock %}
+
 {% block content %}
-<div class="card" style="text-align: center;">
-    <h1 style="color: var(--primary-color);">Bem-vindo à GlobalSIM</h1>
-    <p>Sistema de gerenciamento de cobertura internacional eSIM.</p>
-    
-    <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
-        <a href="{{ url_for('paises') }}" class="btn btn-primary">Ver Países Cadastrados</a>
-        <a href="{{ url_for('consulta') }}" class="btn btn-success">Consultar Cobertura</a>
+<section class="hero text-center px-4 py-5 mb-5 shadow-sm">
+    <div class="py-lg-3">
+        <span class="badge bg-white text-primary fw-bold text-uppercase px-3 py-2 rounded-pill mb-3 shadow-sm">
+            ✈ eSIM Internacional de Alta Performance
+        </span>
+        <h1 class="display-4 fw-bold mb-3">Conecte-se em qualquer lugar do mundo</h1>
+        <p class="lead col-lg-8 mx-auto mb-4">
+            Gerencie sua cobertura eSIM internacional de forma instantânea.
+            Cadastre destinos, consulte operadoras parceiras e acompanhe a estrutura de dados em tempo real.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('consulta') }}" class="btn btn-light btn-lg fw-semibold px-4 shadow-sm">
+                Consultar Cobertura
+            </a>
+            <a href="{{ url_for('cadastro') }}" class="btn btn-outline-light btn-lg fw-semibold px-4">
+                Cadastrar Novo País
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 rounded-4">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="feature-icon">🌍</div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Países & Destinos</h5>
+                        <small class="text-secondary">Rede de roaming</small>
+                    </div>
+                </div>
+                <p class="card-text text-secondary mb-4 flex-grow-1">
+                    Visualize todos os países cadastrados com suas respectivas operadoras parceiras e tecnologias disponíveis.
+                </p>
+                <a href="{{ url_for('paises') }}" class="btn btn-outline-primary w-100">
+                    Acessar Catálogo de Países &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 rounded-4">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="feature-icon">📡</div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Consulta com Modal</h5>
+                        <small class="text-secondary">Busca O(1) média</small>
+                    </div>
+                </div>
+                <p class="card-text text-secondary mb-4 flex-grow-1">
+                    Verifique a disponibilidade de conexão em segundos por meio do código ISO, com visualização em modal interativo.
+                </p>
+                <a href="{{ url_for('consulta') }}" class="btn btn-outline-primary w-100">
+                    Verificar Disponibilidade &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0 rounded-4">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="feature-icon">📊</div>
+                    <div>
+                        <h5 class="card-title fw-bold mb-0">Painel Algorítmico</h5>
+                        <small class="text-secondary">Estrutura de dados</small>
+                    </div>
+                </div>
+                <p class="card-text text-secondary mb-4 flex-grow-1">
+                    Acompanhe em tempo real as métricas da Tabela Hash: fator de carga, colisões tratadas e dispersão por bucket.
+                </p>
+                <a href="{{ url_for('estatisticas') }}" class="btn btn-outline-primary w-100">
+                    Abrir Painel de Hash &rarr;
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

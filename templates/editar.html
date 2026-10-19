@@ -1,28 +1,45 @@
 {% extends "base.html" %}
 
+{% block title %}Editar {{ pais.codigo }} — R-Mobile{% endblock %}
+
 {% block content %}
-<div class="card">
-    <h2>Editar País: {{ pais.codigo }}</h2>
-    <form action="{{ url_for('editar', codigo=pais.codigo) }}" method="POST">
-        <label for="codigo">Código do País:</label>
-        <input type="text" id="codigo" value="{{ pais.codigo }}" disabled style="background-color: #e5e7eb;">
-        
-        <label for="pais">Nome do País:</label>
-        <input type="text" id="pais" name="pais" value="{{ pais.pais }}" required>
-        
-        <label for="regiao">Região:</label>
-        <input type="text" id="regiao" name="regiao" value="{{ pais.regiao }}" required>
-        
-        <label for="operadora">Operadora:</label>
-        <input type="text" id="operadora" name="operadora" value="{{ pais.operadora }}" required>
-        
-        <label for="tecnologia">Tecnologia (ex: 5G, 4G):</label>
-        <input type="text" id="tecnologia" name="tecnologia" value="{{ pais.tecnologia }}" required>
-        
-        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-            <a href="{{ url_for('paises') }}" class="btn" style="background-color: #6b7280; text-align: center;">Cancelar</a>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="card-title h3 mb-0">Editar País: <span class="badge bg-primary">{{ pais.codigo }}</span></h2>
+                    <a href="{{ url_for('paises') }}" class="btn btn-sm btn-outline-secondary">← Voltar</a>
+                </div>
+                <form action="{{ url_for('editar', codigo=pais.codigo) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="codigo" class="form-label fw-semibold">Código do País</label>
+                        <input type="text" class="form-control bg-body-tertiary" id="codigo" value="{{ pais.codigo }}" disabled>
+                        <div class="form-text">A chave hash do país é imutável após cadastrada.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pais" class="form-label fw-semibold">Nome do País</label>
+                        <input type="text" class="form-control" id="pais" name="pais" value="{{ pais.pais }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="regiao" class="form-label fw-semibold">Região / Continente</label>
+                        <input type="text" class="form-control" id="regiao" name="regiao" value="{{ pais.regiao }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="operadora" class="form-label fw-semibold">Operadora Parceira</label>
+                        <input type="text" class="form-control" id="operadora" name="operadora" value="{{ pais.operadora }}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="tecnologia" class="form-label fw-semibold">Tecnologia Disponível</label>
+                        <input type="text" class="form-control" id="tecnologia" name="tecnologia" value="{{ pais.tecnologia }}" required>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">Salvar Alterações</button>
+                        <a href="{{ url_for('paises') }}" class="btn btn-outline-secondary px-3">Cancelar</a>
+                    </div>
+                </form>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

@@ -1,41 +1,60 @@
 {% extends "base.html" %}
 
+{% block title %}Países Cadastrados — R-Mobile{% endblock %}
+
 {% block content %}
-<div class="card">
-    <h2>Países Cadastrados</h2>
-    
-    {% if paises %}
-    <table>
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>País</th>
-                <th>Região</th>
-                <th>Operadora</th>
-                <th>Tecnologia</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pais in paises %}
-            <tr>
-                <td><strong>{{ pais.codigo }}</strong></td>
-                <td>{{ pais.pais }}</td>
-                <td>{{ pais.regiao }}</td>
-                <td>{{ pais.operadora }}</td>
-                <td>{{ pais.tecnologia }}</td>
-                <td class="actions">
-                    <a href="{{ url_for('editar', codigo=pais.codigo) }}" class="btn btn-primary">Editar</a>
-                    <form action="{{ url_for('remover', codigo=pais.codigo) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover o país {{ pais.pais }}?');" style="display: inline;">
-                        <button type="submit" class="btn btn-danger">Remover</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>Nenhum país cadastrado no momento.</p>
-    {% endif %}
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h2 class="card-title h3 mb-1">Países Cadastrados</h2>
+                <p class="text-secondary mb-0">Total de {{ paises|length }} destinos com cobertura eSIM ativa.</p>
+            </div>
+            <a href="{{ url_for('cadastro') }}" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                <span>+</span> Cadastrar País
+            </a>
+        </div>
+
+        {% if paises %}
+        <div class="table-responsive rounded-3 border">
+            <table class="table table-striped table-hover align-middle mb-0 table-brand">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">Código</th>
+                        <th>País</th>
+                        <th>Região</th>
+                        <th>Operadora</th>
+                        <th style="width: 14%;">Tecnologia</th>
+                        <th style="width: 18%;" class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pais in paises %}
+                    <tr>
+                        <td><span class="badge bg-primary-subtle text-primary-emphasis font-monospace px-2 py-1 fs-6">{{ pais.codigo }}</span></td>
+                        <td class="fw-semibold">{{ pais.pais }}</td>
+                        <td class="text-secondary">{{ pais.regiao }}</td>
+                        <td>{{ pais.operadora }}</td>
+                        <td><span class="badge bg-secondary-subtle text-secondary-emphasis">{{ pais.tecnologia }}</span></td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <a href="{{ url_for('editar', codigo=pais.codigo) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form action="{{ url_for('remover', codigo=pais.codigo) }}" method="POST" onsubmit="return confirm('Deseja realmente remover este país?');" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remover</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <p class="text-secondary fs-5 mb-3">Nenhum país cadastrado no momento.</p>
+            <a href="{{ url_for('cadastro') }}" class="btn btn-primary">Cadastrar Primeiro Destino</a>
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

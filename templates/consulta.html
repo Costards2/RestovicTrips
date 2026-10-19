@@ -1,25 +1,113 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="card">
-    <h2>Consultar Cobertura</h2>
-    <form action="{{ url_for('consulta') }}" method="POST">
-        <label for="codigo">Código do País (2 letras):</label>
-        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-            <input type="text" id="codigo" name="codigo" required maxlength="2" placeholder="Ex: IT" style="width: 200px;">
-            <button type="submit" class="btn btn-success">Verificar Cobertura</button>
-        </div>
-    </form>
+{% block title %}Consultar Cobertura — R-Mobile{% endblock %}
 
-    {% if resultado %}
-    <div class="card" style="margin-top: 2rem; border: 2px solid var(--success); text-align: center;">
-        <h3 style="color: var(--success); margin-top: 0;">COBERTURA DISPONÍVEL</h3>
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 1rem 0;">
-        <p><strong>País:</strong> {{ resultado.pais }}</p>
-        <p><strong>Região:</strong> {{ resultado.regiao }}</p>
-        <p><strong>Operadora:</strong> {{ resultado.operadora }}</p>
-        <p><strong>Tecnologia:</strong> {{ resultado.tecnologia }}</p>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="feature-icon" style="width: 48px; height: 48px; font-size: 1.25rem;">📡</div>
+                    <div>
+                        <h2 class="card-title h3 mb-0">Consultar Cobertura</h2>
+                        <p class="text-secondary mb-0">Verifique a disponibilidade de conexão eSIM para o seu destino.</p>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('consulta') }}" method="POST" class="mt-4">
+                    <label for="codigo" class="form-label fw-semibold">Código ISO do País (2 letras)</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text bg-body-tertiary">🌐</span>
+                        <input type="text" class="form-control form-control-lg text-uppercase font-monospace"
+                               id="codigo" name="codigo" required maxlength="2"
+                               value="{{ request.form.get('codigo', '') }}"
+                               placeholder="Ex: BR, PT, US, JP, IT"
+                               autocomplete="off">
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">Verificar Cobertura</button>
+                    </div>
+                    <div class="form-text">Exemplos populares: BR (Brasil), PT (Portugal), US (EUA), JP (Japão), IT (Itália).</div>
+                </form>
+
+                {% if resultado %}
+                <div class="mt-4 p-3 rounded-3 bg-primary-subtle border border-primary-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4">✅</span>
+                        <div>
+                            <strong>Cobertura confirmada para {{ resultado.pais }} ({{ resultado.codigo }})!</strong>
+                            <div class="small text-secondary">Operadora {{ resultado.operadora }} · {{ resultado.tecnologia }}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalCobertura">
+                        Ver Detalhes no Modal
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    {% endif %}
 </div>
+
+{% if resultado %}
+<div class="modal fade" id="modalCobertura" tabindex="-1" aria-labelledby="modalCoberturaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--rm-brand-950), var(--rm-brand-700));">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="{{ url_for('static', filename='r-mobile-icon.svg') }}" alt="" width="24" height="24">
+                    <h5 class="modal-title fw-bold" id="modalCoberturaLabel">Cobertura Disponível</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle fs-6 px-3 py-2 rounded-pill">
+                        ✓ Rede pronta para conexão eSIM
+                    </span>
+                </div>
+                <div class="card bg-body-tertiary border-0 mb-3">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-secondary">Código</span>
+                            <span class="font-monospace fw-bold">{{ resultado.codigo }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-secondary">País</span>
+                            <strong>{{ resultado.pais }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-secondary">Região / Continente</span>
+                            <strong>{{ resultado.regiao }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-secondary">Operadora Parceira</span>
+                            <strong>{{ resultado.operadora }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 align-items-center">
+                            <span class="text-secondary">Tecnologia Suportada</span>
+                            <span class="badge bg-primary px-3 py-2 fs-6">{{ resultado.tecnologia }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-body-tertiary">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                <a href="{{ url_for('paises') }}" class="btn btn-primary">Ver Todos os Países</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if resultado %}
+<script>
+    const modalElement = document.getElementById('modalCobertura');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+</script>
+{% endif %}
 {% endblock %}
