@@ -1,13 +1,6 @@
 # GlobalSIM — Administração de Serviços de Internet por eSIM
 
-Aplicação Web desenvolvida em **Python** e **Flask** para a disciplina de **Estruturas de Dados II** (Sistemas de Informação — DCET I / UNEB, Profra. Maria Inés Restovic). O projeto administra países atendidos, cobertura de rede, cadastro de clientes e planos de dados por eSIM, integrando estruturas de dados em memória com persistência em arquivos JSON.
-
-## Integrantes da Equipe
-
-* **Pedro Costard**
-* **Mirela Fernandes**
-* **Lucy Lima Santos**
-* **Gustavo Fernandes**
+Aplicação Web desenvolvida em **Python** e **Flask** para a disciplina de **Estruturas de Dados II** (Sistemas de Informação — DCET I / UNEB, Prof. Maria Inés Restovic). O projeto administra países atendidos, cobertura de rede, cadastro de clientes e planos de dados por eSIM, integrando estruturas de dados em memória com persistência em arquivos JSON.
 
 ## Arquitetura e Estruturas de Dados
 
