@@ -28,6 +28,13 @@
         "tecnologia": "5G"
     },
     {
+        "codigo": "TU",
+        "pais": "Turquia",
+        "regiao": "Ásia",
+        "operadora": "tutu",
+        "tecnologia": "5G"
+    },
+    {
         "codigo": "BR",
         "pais": "Brasil",
         "regiao": "América do Sul",
@@ -36,7 +43,7 @@
     },
     {
         "codigo": "ES",
-        "pais": "Espanha",
+        "pais": "Estônia",
         "regiao": "Europa",
         "operadora": "Movistar",
         "tecnologia": "5G"
@@ -46,13 +53,6 @@
         "pais": "França",
         "regiao": "Europa",
         "operadora": "Orange",
-        "tecnologia": "5G"
-    },
-    {
-        "codigo": "PT",
-        "pais": "Portugal",
-        "regiao": "Europa",
-        "operadora": "MEO",
         "tecnologia": "5G"
     }
 ]

@@ -1,0 +1,37 @@
+[
+    {
+        "codigo": 101,
+        "nome": "Europa Basic",
+        "pacote": "Europa Basic",
+        "dados": "5 GB",
+        "validade": "15 dias"
+    },
+    {
+        "codigo": 102,
+        "nome": "Europa Plus",
+        "pacote": "Europa Plus",
+        "dados": "10 GB",
+        "validade": "30 dias"
+    },
+    {
+        "codigo": 201,
+        "nome": "América Basic",
+        "pacote": "América Basic",
+        "dados": "5 GB",
+        "validade": "15 dias"
+    },
+    {
+        "codigo": 202,
+        "nome": "América Plus",
+        "pacote": "América Plus",
+        "dados": "15 GB",
+        "validade": "30 dias"
+    },
+    {
+        "codigo": 301,
+        "nome": "Global",
+        "pacote": "Global",
+        "dados": "20 GB",
+        "validade": "30 dias"
+    }
+]

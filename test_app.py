@@ -1,7 +1,12 @@
+import json
+import os
 import random
 import pytest
+
 from tabela_hash import TabelaHash
 from b_tree import ArvoreB
+import persistencia
+from gerar_clientes import gerar_clientes, salvar_clientes_em_arquivo, PACOTES_VALIDOS, STATUS_VALIDOS
 
 
 @pytest.fixture
@@ -167,3 +172,171 @@ class TestArvoreB:
         alvo = ids_unicos[500]
         assert ab.buscar(alvo)["id"] == alvo
         assert ab.ultima_busca["paginas_visitadas"] <= ab.altura()
+
+
+# ==============================================================================
+# SUÍTE DE TESTES: PACOTES DE SERVIÇO (ETAPA 2)
+# ==============================================================================
+class TestPacotes:
+    def test_pacotes_contem_codigos_obrigatorios_do_pdf(self):
+        pacotes = persistencia.carregar_pacotes()
+        codigos = [p["codigo"] for p in pacotes]
+        assert sorted(codigos) == [101, 102, 201, 202, 301]
+
+    def test_dados_e_validade_conforme_especificacao(self):
+        mapa = persistencia.obter_mapa_pacotes()
+        
+        # 101 Europa Basic | 5 GB | 15 dias
+        assert mapa[101]["nome"] == "Europa Basic"
+        assert mapa[101]["dados"] == "5 GB"
+        assert mapa[101]["validade"] == "15 dias"
+
+        # 102 Europa Plus | 10 GB | 30 dias
+        assert mapa[102]["nome"] == "Europa Plus"
+        assert mapa[102]["dados"] == "10 GB"
+        assert mapa[102]["validade"] == "30 dias"
+
+        # 201 América Basic | 5 GB | 15 dias
+        assert mapa[201]["nome"] == "América Basic"
+        assert mapa[201]["dados"] == "5 GB"
+        assert mapa[201]["validade"] == "15 dias"
+
+        # 202 América Plus | 15 GB | 30 dias
+        assert mapa[202]["nome"] == "América Plus"
+        assert mapa[202]["dados"] == "15 GB"
+        assert mapa[202]["validade"] == "30 dias"
+
+        # 301 Global | 20 GB | 30 dias
+        assert mapa[301]["nome"] == "Global"
+        assert mapa[301]["dados"] == "20 GB"
+        assert mapa[301]["validade"] == "30 dias"
+
+
+# ==============================================================================
+# SUÍTE DE TESTES: GERADOR DE MASSA DE CLIENTES (ETAPA 2)
+# ==============================================================================
+class TestGeradorClientes:
+    def test_geracao_1000_clientes_com_campos_obrigatorios(self):
+        clientes = gerar_clientes(quantidade=1000, seed=123)
+        assert len(clientes) == 1000
+
+        ids = set()
+        for c in clientes:
+            # ID único de 5 dígitos (10000 a 99999)
+            cid = c["id"]
+            assert isinstance(cid, int)
+            assert 10000 <= cid <= 99999
+            assert cid not in ids
+            ids.add(cid)
+
+            # Nome e Email
+            assert isinstance(c["nome"], str) and len(c["nome"].split()) >= 2
+            assert "@" in c["email"] and c["email"].endswith("@email.com")
+
+            # eSIM formatado
+            assert c["esim"].startswith("ESIM-")
+            assert len(c["esim"].split("-")[1]) == 5
+
+            # Pacote válido
+            assert c["pacote"] in PACOTES_VALIDOS
+
+            # Status válido
+            assert c["status"] in STATUS_VALIDOS
+
+        assert len(ids) == 1000
+
+    def test_reproducibilidade_com_seed(self):
+        c1 = gerar_clientes(quantidade=50, seed=99)
+        c2 = gerar_clientes(quantidade=50, seed=99)
+        assert c1 == c2
+
+
+# ==============================================================================
+# SUÍTE DE TESTES: PERSISTÊNCIA COMPLETA (ETAPA 1 + ETAPA 2)
+# ==============================================================================
+class TestPersistencia:
+    def test_preservacao_paises_e_retrocompatibilidade(self):
+        # Carregar via alias antigo e nova função
+        dados_antigo = persistencia.carregar_dados()
+        paises_novo = persistencia.carregar_paises()
+        assert dados_antigo == paises_novo
+        assert len(paises_novo) >= 7
+
+        codigos = [p["codigo"] for p in paises_novo]
+        assert "BR" in codigos
+        assert "IT" in codigos
+
+    def test_salvar_e_carregar_clientes_em_arquivo_temporario(self, tmp_path):
+        caminho_teste = str(tmp_path / "clientes_teste.json")
+        massa = gerar_clientes(quantidade=20, seed=77)
+
+        persistencia.salvar_clientes(massa, caminho=caminho_teste)
+        carregados = persistencia.carregar_clientes(caminho=caminho_teste, auto_gerar=False)
+
+        assert len(carregados) == 20
+        assert carregados[0]["id"] == massa[0]["id"]
+        assert carregados[0]["nome"] == massa[0]["nome"]
+
+    def test_salvar_clientes_a_partir_de_arvore_b(self, tmp_path):
+        caminho_teste = str(tmp_path / "clientes_arvore.json")
+        ab = ArvoreB(ordem=3)
+        c1 = {"id": 20000, "nome": "Cliente B", "email": "b@email.com", "esim": "ESIM-11111", "pacote": 101, "status": "ativo"}
+        c2 = {"id": 10000, "nome": "Cliente A", "email": "a@email.com", "esim": "ESIM-22222", "pacote": 102, "status": "ativo"}
+        ab.inserir(20000, c1)
+        ab.inserir(10000, c2)
+
+        persistencia.salvar_clientes(ab, caminho=caminho_teste)
+        carregados = persistencia.carregar_clientes(caminho=caminho_teste, auto_gerar=False)
+
+        # Salvo pela Árvore B deve estar ordenado por ID (10000, depois 20000)
+        assert len(carregados) == 2
+        assert carregados[0]["id"] == 10000
+        assert carregados[1]["id"] == 20000
+
+    def test_auto_geracao_de_clientes_quando_ausente(self, tmp_path):
+        caminho_inexistente = str(tmp_path / "subpasta" / "clientes_novo.json")
+        assert not os.path.exists(caminho_inexistente)
+
+        clientes = persistencia.carregar_clientes(caminho=caminho_inexistente, auto_gerar=True, quantidade=15)
+        assert len(clientes) == 15
+        assert os.path.exists(caminho_inexistente)
+
+
+# ==============================================================================
+# SUÍTE DE TESTES: CARGA IDEMPOTENTE NA INICIALIZAÇÃO DA APLICAÇÃO (APP.PY)
+# ==============================================================================
+class TestCargaAppArvoreB:
+    def test_carga_inicial_app(self):
+        import app
+
+        # Verifica se as estruturas estão instanciadas e povoadas no app
+        assert app.tabela is not None
+        assert app.tabela.tamanho >= 7
+
+        assert app.arvore_clientes is not None
+        assert app.arvore_clientes.tamanho == 1000
+
+        assert len(app.pacotes) == 5
+        assert 101 in app.mapa_pacotes
+
+    def test_idempotencia_da_carga(self):
+        import app
+
+        tamanho_original = app.arvore_clientes.tamanho
+        assert tamanho_original == 1000
+
+        # Executa recargas sucessivas
+        app.carregar_clientes_na_arvore(app.arvore_clientes)
+        assert app.arvore_clientes.tamanho == tamanho_original
+
+        app.carregar_clientes_na_arvore(app.arvore_clientes)
+        assert app.arvore_clientes.tamanho == tamanho_original
+
+        # Busca um cliente arbitrário da base para confirmar integridade
+        primeiro_cliente = app.arvore_clientes.listar_ordem()[0]
+        cid = primeiro_cliente["id"]
+        recuperado = app.arvore_clientes.buscar(cid)
+
+        assert recuperado is not None
+        assert recuperado["id"] == cid
+        assert recuperado["pacote"] in PACOTES_VALIDOS

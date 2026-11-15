@@ -1,16 +1,40 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from tabela_hash import TabelaHash
+from b_tree import ArvoreB
 import persistencia
 import os
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'chave_secreta_padrao_segura')
 
-# Inicialização da estrutura
+# ==============================================================================
+# INICIALIZAÇÃO DAS ESTRUTURAS DE DADOS
+# ==============================================================================
+# 1. Tabela Hash (Países e Cobertura - Etapa 1)
 tabela = TabelaHash()
 dados_iniciais = persistencia.carregar_dados()
 for p in dados_iniciais:
     tabela.inserir(p['codigo'], p)
+
+# 2. Árvore B (Clientes e eSIMs - Etapa 2)
+arvore_clientes = ArvoreB(ordem=5)
+
+
+def carregar_clientes_na_arvore(arvore: ArvoreB = None) -> ArvoreB:
+    """Carrega os clientes a partir do arquivo JSON na Árvore B de forma idempotente."""
+    alvo = arvore if arvore is not None else arvore_clientes
+    clientes = persistencia.carregar_clientes()
+    alvo.carregar(clientes)
+    return alvo
+
+
+# Carga idempotente na Árvore B ao subir a aplicação
+carregar_clientes_na_arvore(arvore_clientes)
+
+# 3. Pacotes de Serviço (Etapa 2)
+pacotes = persistencia.carregar_pacotes()
+mapa_pacotes = persistencia.obter_mapa_pacotes()
+
 
 @app.route('/')
 def index():
