@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Consulta Integrada — R-Mobile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="feature-icon" style="width: 48px; height: 48px; font-size: 1.25rem;">🔗</div>
+                    <div>
+                        <h2 class="card-title h3 mb-0">Consulta Integrada (Árvore B × Tabela Hash)</h2>
+                        <p class="text-secondary mb-0">Busque o cliente na Árvore B e verifique a cobertura do destino na Tabela Hash.</p>
+                    </div>
+                </div>
+
+                <form action="/clientes/consultar" method="POST" class="mt-4">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label for="id_cliente" class="form-label fw-semibold">ID do Cliente (Árvore B)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-body-tertiary">👤</span>
+                                <input type="number" class="form-control form-control-lg font-monospace"
+                                       id="id_cliente" name="id_cliente" required
+                                       value="{{ request.form.get('id_cliente', request.args.get('id', '')) }}"
+                                       placeholder="Ex: 58372" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="codigo_pais" class="form-label fw-semibold">Destino ISO (Tabela Hash)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-body-tertiary">🌐</span>
+                                <input type="text" class="form-control form-control-lg text-uppercase font-monospace"
+                                       id="codigo_pais" name="codigo_pais" maxlength="2"
+                                       value="{{ request.form.get('codigo_pais', '') }}"
+                                       placeholder="Ex: IT, BR, JP" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg fw-semibold">Consultar</button>
+                        </div>
+                    </div>
+                    <div class="form-text mt-2">Informe o ID de 5 dígitos do cliente e, opcionalmente, o código de 2 letras do país de destino.</div>
+                </form>
+
+                {% if cliente %}
+                <div class="mt-4 p-3 rounded-3 bg-primary-subtle border border-primary-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-4">✅</span>
+                        <div>
+                            <strong>Cliente {{ cliente.nome }} ({{ cliente.id }}) localizado na Árvore B!</strong>
+                            <div class="small text-secondary">
+                                eSIM {{ cliente.esim }} · Pacote {{ cliente.pacote }}
+                                {% if pais %} · Destino {{ pais.pais }} ({{ pais.operadora }}){% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalConsultaIntegrada">
+                        Abrir Ficha Completa
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if cliente %}
+<div class="modal fade" id="modalConsultaIntegrada" tabindex="-1" aria-labelledby="modalConsultaIntegradaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--rm-brand-950), var(--rm-brand-700));">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="{{ url_for('static', filename='r-mobile-icon.svg') }}" alt="" width="24" height="24">
+                    <h5 class="modal-title fw-bold" id="modalConsultaIntegradaLabel">Ficha Integrada do Cliente</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card bg-body-tertiary border-0 h-100">
+                            <div class="card-body p-3">
+                                <h6 class="fw-bold text-uppercase small text-primary mb-3">👤 Cliente (Árvore B)</h6>
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-secondary">ID</span>
+                                    <span class="font-monospace fw-bold">{{ cliente.id }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-secondary">Nome</span>
+                                    <strong>{{ cliente.nome }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-secondary">E-mail</span>
+                                    <span class="small">{{ cliente.email }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-secondary">eSIM</span>
+                                    <span class="font-monospace fw-semibold">{{ cliente.esim }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between py-2 align-items-center">
+                                    <span class="text-secondary">Status</span>
+                                    <span class="badge {% if cliente.status == 'ativo' %}bg-success-subtle text-success-emphasis{% else %}bg-secondary-subtle text-secondary-emphasis{% endif %}">
+                                        {{ cliente.status|capitalize }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card bg-body-tertiary border-0 h-100">
+                            <div class="card-body p-3">
+                                <h6 class="fw-bold text-uppercase small text-primary mb-3">📦 Pacote &amp; 🌐 Destino (Hash)</h6>
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-secondary">Pacote</span>
+                                    <strong>
+                                        {{ cliente.pacote }}{% if pacote %} — {{ pacote.nome }}{% endif %}
+                                    </strong>
+                                </div>
+                                {% if pacote %}
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-secondary">Franquia / Validade</span>
+                                    <strong>{{ pacote.dados }} · {{ pacote.validade }}</strong>
+                                </div>
+                                {% endif %}
+
+                                {% if pais %}
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-secondary">País</span>
+                                    <strong>{{ pais.pais }} ({{ pais.codigo }})</strong>
+                                </div>
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-secondary">Operadora</span>
+                                    <strong>{{ pais.operadora }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between py-2 align-items-center">
+                                    <span class="text-secondary">Tecnologia</span>
+                                    <span class="badge bg-primary px-3 py-1">{{ pais.tecnologia }}</span>
+                                </div>
+                                {% else %}
+                                <div class="py-3 text-center text-secondary small">
+                                    Informe um código ISO de destino para verificar a cobertura pela Tabela Hash.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if busca_metricas %}
+                <div class="mt-3 p-3 rounded-3 border bg-body-tertiary d-flex justify-content-around text-center">
+                    <div>
+                        <div class="small text-secondary">Comparações na Árvore B</div>
+                        <strong class="fs-5">{{ busca_metricas.comparacoes }}</strong>
+                    </div>
+                    <div>
+                        <div class="small text-secondary">Páginas Visitadas</div>
+                        <strong class="fs-5">{{ busca_metricas.paginas_visitadas }}</strong>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer bg-body-tertiary">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                <a href="/clientes/editar/{{ cliente.id }}" class="btn btn-outline-primary">Editar Cliente</a>
+                <a href="/clientes" class="btn btn-primary">Lista de Clientes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if cliente %}
+<script>
+    const modalIntegrado = document.getElementById('modalConsultaIntegrada');
+    if (modalIntegrado) {
+        const modal = new bootstrap.Modal(modalIntegrado);
+        modal.show();
+    }
+</script>
+{% endif %}
+{% endblock %}

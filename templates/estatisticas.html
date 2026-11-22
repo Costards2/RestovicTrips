@@ -115,4 +115,108 @@
         </div>
     </div>
 </div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-3 mb-2">
+            <div class="feature-icon" style="width: 48px; height: 48px; font-size: 1.25rem;">🌳</div>
+            <div>
+                <h2 class="card-title h3 mb-0">Painel de Monitoramento — Árvore B</h2>
+                <p class="text-secondary mb-0">Instrumentação estrutural do índice de clientes (altura, divisões e comparações).</p>
+            </div>
+        </div>
+
+        {% if b_stats %}
+        <div class="row g-3 my-3">
+            <div class="col-6 col-lg-3">
+                <div class="card h-100 border border-primary-subtle bg-primary-subtle text-primary-emphasis stat-card rounded-4 p-3 shadow-sm">
+                    <span class="text-uppercase small fw-bold opacity-75">Ordem (t)</span>
+                    <span class="stat-value">{{ b_stats.ordem }}</span>
+                    <small class="opacity-75">Grau da Árvore B</small>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card h-100 border border-primary-subtle bg-primary-subtle text-primary-emphasis stat-card rounded-4 p-3 shadow-sm">
+                    <span class="text-uppercase small fw-bold opacity-75">Altura</span>
+                    <span class="stat-value">{{ b_stats.altura }}</span>
+                    <small class="opacity-75">Níveis da árvore</small>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card h-100 border border-primary-subtle bg-primary-subtle text-primary-emphasis stat-card rounded-4 p-3 shadow-sm">
+                    <span class="text-uppercase small fw-bold opacity-75">Divisões (Splits)</span>
+                    <span class="stat-value">{{ b_stats.divisoes }}</span>
+                    <small class="opacity-75">Páginas divididas</small>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card h-100 border border-primary-subtle bg-primary-subtle text-primary-emphasis stat-card rounded-4 p-3 shadow-sm">
+                    <span class="text-uppercase small fw-bold opacity-75">Comparações</span>
+                    <span class="stat-value">{{ b_stats.comparacoes_totais }}</span>
+                    <small class="opacity-75">Em buscas realizadas</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 border bg-body-tertiary d-flex justify-content-between align-items-center">
+                    <span class="text-secondary">Clientes Indexados</span>
+                    <strong class="fs-5">{{ b_stats.total_registros }}</strong>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 border bg-body-tertiary d-flex justify-content-between align-items-center">
+                    <span class="text-secondary">Páginas Visitadas (Total)</span>
+                    <strong class="fs-5">{{ b_stats.paginas_visitadas_totais }}</strong>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3 rounded-3 border bg-body-tertiary d-flex justify-content-between align-items-center">
+                    <span class="text-secondary">Última Busca</span>
+                    <strong class="fs-5">{{ b_stats.ultima_busca.comparacoes }} comp. / {{ b_stats.ultima_busca.paginas_visitadas }} pág.</strong>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info mt-3 mb-4" role="alert">
+            Conecte a variável <code>b_stats</code> (retorno de <code>arvore_b.estatisticas()</code>) na rota <code>/estatisticas</code> para exibir as métricas da Árvore B ao vivo.
+        </div>
+        {% endif %}
+
+        <h3 class="h4 mt-4 mb-3">Diferencial — Comparador de Graus da Árvore B</h3>
+        {% if comparacao_graus %}
+        <div class="table-responsive rounded-3 border">
+            <table class="table table-striped table-hover align-middle mb-0 table-brand">
+                <thead>
+                    <tr>
+                        <th>Ordem (t)</th>
+                        <th>Registros</th>
+                        <th>Altura</th>
+                        <th>Divisões (Splits)</th>
+                        <th>Comparações na Busca</th>
+                        <th>Páginas Visitadas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in comparacao_graus %}
+                    <tr>
+                        <td><span class="badge bg-primary font-monospace px-2 py-1">Ordem {{ item.ordem }}</span></td>
+                        <td>{{ item.total_registros }}</td>
+                        <td class="fw-bold">{{ item.altura }}</td>
+                        <td>{{ item.divisoes }}</td>
+                        <td>{{ item.comparacoes_busca }}</td>
+                        <td>{{ item.paginas_visitadas }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-3 rounded-3 border bg-body-tertiary text-secondary small">
+            Conecte a lista <code>comparacao_graus</code> na rota <code>/estatisticas</code> para comparar altura, divisões e buscas entre ordens diferentes (ex: ordens 2, 3 e 5).
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

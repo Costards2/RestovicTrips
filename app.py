@@ -106,10 +106,151 @@ def remover(codigo):
         flash('Erro ao remover o país.', 'danger')
     return redirect(url_for('paises'))
 
+def _comparar_graus_arvore_b(ordens=(2, 3, 5)):
+    """Compara altura, divisões e custo de busca da Árvore B para diferentes ordens."""
+    clientes = arvore_clientes.listar_ordem()
+    id_amostra = clientes[len(clientes) // 2]["id"] if clientes else None
+    comparacao = []
+
+    for ordem in ordens:
+        arv = ArvoreB(ordem=ordem)
+        arv.carregar(clientes)
+        if id_amostra is not None:
+            arv.buscar(id_amostra)
+        est = arv.estatisticas()
+        comparacao.append({
+            "ordem": ordem,
+            "total_registros": est["total_registros"],
+            "altura": est["altura"],
+            "divisoes": est["divisoes"],
+            "comparacoes_busca": est["ultima_busca"]["comparacoes"],
+            "paginas_visitadas": est["ultima_busca"]["paginas_visitadas"],
+        })
+
+    return comparacao
+
+
 @app.route('/estatisticas')
 def estatisticas():
     stats = tabela.obter_estatisticas()
-    return render_template('estatisticas.html', stats=stats, tabela=tabela.tabela)
+    b_stats = arvore_clientes.estatisticas()
+    comparacao_graus = _comparar_graus_arvore_b()
+    return render_template(
+        'estatisticas.html',
+        stats=stats,
+        tabela=tabela.tabela,
+        b_stats=b_stats,
+        comparacao_graus=comparacao_graus,
+    )
+
+
+@app.route('/clientes')
+def clientes():
+    lista = arvore_clientes.listar_ordem()
+    return render_template('clientes.html', clientes=lista)
+
+
+@app.route('/clientes/cadastrar', methods=['GET', 'POST'])
+def cadastro_cliente():
+    if request.method == 'POST':
+        id_raw = request.form.get('id', '').strip()
+        pacote_raw = request.form.get('pacote', '').strip()
+
+        if not id_raw.isdigit() or not (10000 <= int(id_raw) <= 99999):
+            flash('Erro: O ID do cliente deve ser um número inteiro de 5 dígitos (10000 a 99999).', 'danger')
+            return render_template('cadastro_cliente.html', pacotes=pacotes)
+
+        id_cliente = int(id_raw)
+        if arvore_clientes.buscar(id_cliente) is not None:
+            flash('Erro: Já existe um cliente cadastrado com esse ID.', 'danger')
+            return render_template('cadastro_cliente.html', pacotes=pacotes)
+
+        if not pacote_raw.isdigit() or int(pacote_raw) not in mapa_pacotes:
+            flash('Erro: Pacote selecionado é inválido.', 'danger')
+            return render_template('cadastro_cliente.html', pacotes=pacotes)
+
+        novo_cliente = {
+            "id": id_cliente,
+            "nome": request.form.get('nome', '').strip(),
+            "email": request.form.get('email', '').strip(),
+            "esim": request.form.get('esim', '').strip().upper(),
+            "pacote": int(pacote_raw),
+            "status": request.form.get('status', 'ativo').strip().lower(),
+        }
+        arvore_clientes.inserir(id_cliente, novo_cliente)
+        persistencia.salvar_clientes(arvore_clientes)
+        flash('Cliente cadastrado com sucesso!', 'success')
+        return redirect(url_for('clientes'))
+
+    return render_template('cadastro_cliente.html', pacotes=pacotes)
+
+
+@app.route('/clientes/editar/<int:id_cliente>', methods=['GET', 'POST'])
+def editar_cliente(id_cliente):
+    cliente = arvore_clientes.buscar(id_cliente)
+    if not cliente:
+        flash('Cliente não encontrado.', 'danger')
+        return redirect(url_for('clientes'))
+
+    if request.method == 'POST':
+        pacote_raw = request.form.get('pacote', '').strip()
+        if not pacote_raw.isdigit() or int(pacote_raw) not in mapa_pacotes:
+            flash('Erro: Pacote selecionado é inválido.', 'danger')
+            return render_template('editar_cliente.html', cliente=cliente, pacotes=pacotes)
+
+        novos_dados = {
+            "nome": request.form.get('nome', '').strip(),
+            "email": request.form.get('email', '').strip(),
+            "esim": request.form.get('esim', '').strip().upper(),
+            "pacote": int(pacote_raw),
+            "status": request.form.get('status', 'ativo').strip().lower(),
+        }
+        if arvore_clientes.alterar(id_cliente, novos_dados):
+            persistencia.salvar_clientes(arvore_clientes)
+            flash('Dados do cliente atualizados com sucesso!', 'success')
+        else:
+            flash('Erro ao atualizar o cliente.', 'danger')
+        return redirect(url_for('clientes'))
+
+    return render_template('editar_cliente.html', cliente=cliente, pacotes=pacotes)
+
+
+@app.route('/clientes/consultar', methods=['GET', 'POST'])
+def consulta_cliente():
+    cliente = None
+    pacote = None
+    pais = None
+    busca_metricas = None
+
+    id_raw = (
+        request.form.get('id_cliente', '').strip()
+        if request.method == 'POST'
+        else request.args.get('id', '').strip()
+    )
+    codigo_pais = request.form.get('codigo_pais', '').strip().upper() if request.method == 'POST' else ''
+
+    if id_raw:
+        if not id_raw.isdigit():
+            flash('Informe um ID numérico válido para consultar o cliente.', 'danger')
+        else:
+            cliente = arvore_clientes.buscar(int(id_raw))
+            busca_metricas = dict(arvore_clientes.ultima_busca)
+            if not cliente:
+                flash('Cliente não encontrado na Árvore B.', 'danger')
+            else:
+                pacote = mapa_pacotes.get(int(cliente['pacote']))
+                if codigo_pais:
+                    pais = tabela.buscar(codigo_pais)
+                    if not pais:
+                        flash('País de destino não encontrado ou sem cobertura.', 'warning')
+
+    return render_template(
+        'consulta_cliente.html',
+        cliente=cliente,
+        pacote=pacote,
+        pais=pais,
+        busca_metricas=busca_metricas,
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

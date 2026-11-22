@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Cliente {{ cliente.id }} — R-Mobile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="card-title h3 mb-0">
+                        Editar Cliente: <span class="badge bg-primary font-monospace">{{ cliente.id }}</span>
+                    </h2>
+                    <a href="/clientes" class="btn btn-sm btn-outline-secondary">← Voltar</a>
+                </div>
+                <form action="/clientes/editar/{{ cliente.id }}" method="POST">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <label for="id" class="form-label fw-semibold">ID do Cliente</label>
+                            <input type="text" class="form-control bg-body-tertiary font-monospace" id="id" value="{{ cliente.id }}" disabled>
+                            <div class="form-text">A chave na Árvore B é imutável após cadastrada.</div>
+                        </div>
+                        <div class="col-md-7">
+                            <label for="esim" class="form-label fw-semibold">Código eSIM</label>
+                            <input type="text" class="form-control font-monospace text-uppercase" id="esim" name="esim"
+                                   value="{{ cliente.esim }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nome" class="form-label fw-semibold">Nome Completo</label>
+                        <input type="text" class="form-control" id="nome" name="nome" value="{{ cliente.nome }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold">E-mail</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ cliente.email }}" required>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-7">
+                            <label for="pacote" class="form-label fw-semibold">Pacote Contratado</label>
+                            <select class="form-select" id="pacote" name="pacote" required>
+                                {% if pacotes %}
+                                    {% for p in pacotes %}
+                                    <option value="{{ p.codigo }}" {% if cliente.pacote|int == p.codigo|int %}selected{% endif %}>
+                                        {{ p.codigo }} — {{ p.nome }} ({{ p.dados }} / {{ p.validade }})
+                                    </option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="101" {% if cliente.pacote|int == 101 %}selected{% endif %}>101 — Europa Basic (5 GB / 15 dias)</option>
+                                    <option value="102" {% if cliente.pacote|int == 102 %}selected{% endif %}>102 — Europa Plus (10 GB / 30 dias)</option>
+                                    <option value="201" {% if cliente.pacote|int == 201 %}selected{% endif %}>201 — América Basic (5 GB / 15 dias)</option>
+                                    <option value="202" {% if cliente.pacote|int == 202 %}selected{% endif %}>202 — América Plus (15 GB / 30 dias)</option>
+                                    <option value="301" {% if cliente.pacote|int == 301 %}selected{% endif %}>301 — Global (20 GB / 30 dias)</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="status" class="form-label fw-semibold">Status do eSIM</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="ativo" {% if cliente.status == 'ativo' %}selected{% endif %}>Ativo</option>
+                                <option value="inativo" {% if cliente.status != 'ativo' %}selected{% endif %}>Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">Salvar Alterações</button>
+                        <a href="/clientes" class="btn btn-outline-secondary px-3">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
