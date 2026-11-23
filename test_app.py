@@ -314,7 +314,7 @@ class TestCargaAppArvoreB:
         assert app.tabela.tamanho >= 7
 
         assert app.arvore_clientes is not None
-        assert app.arvore_clientes.tamanho == 1000
+        assert app.arvore_clientes.tamanho == len(persistencia.carregar_clientes(auto_gerar=False))
 
         assert len(app.pacotes) == 5
         assert 101 in app.mapa_pacotes
@@ -322,8 +322,9 @@ class TestCargaAppArvoreB:
     def test_idempotencia_da_carga(self):
         import app
 
-        tamanho_original = app.arvore_clientes.tamanho
-        assert tamanho_original == 1000
+        clientes_arquivo = persistencia.carregar_clientes(auto_gerar=False)
+        tamanho_original = len(clientes_arquivo)
+        assert app.arvore_clientes.tamanho == tamanho_original
 
         # Executa recargas sucessivas
         app.carregar_clientes_na_arvore(app.arvore_clientes)

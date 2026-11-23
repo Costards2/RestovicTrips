@@ -150,6 +150,25 @@ def clientes():
     return render_template('clientes.html', clientes=lista)
 
 
+STATUS_VALIDOS = ("ativo", "inativo")
+
+
+def _validar_dados_cliente(form):
+    """Valida nome, e-mail e status do formulário de cliente e devolve a lista de erros."""
+    erros = []
+    nome = form.get("nome", "").strip()
+    email = form.get("email", "").strip()
+    status = form.get("status", "ativo").strip().lower()
+
+    if not nome:
+        erros.append("Erro: Informe o nome do cliente.")
+    if "@" not in email or "." not in email.split("@")[-1]:
+        erros.append("Erro: Informe um e-mail válido.")
+    if status not in STATUS_VALIDOS:
+        erros.append("Erro: Status inválido.")
+    return erros
+
+
 @app.route('/clientes/cadastrar', methods=['GET', 'POST'])
 def cadastro_cliente():
     if request.method == 'POST':
@@ -169,11 +188,17 @@ def cadastro_cliente():
             flash('Erro: Pacote selecionado é inválido.', 'danger')
             return render_template('cadastro_cliente.html', pacotes=pacotes)
 
+        erros = _validar_dados_cliente(request.form)
+        if erros:
+            for erro in erros:
+                flash(erro, "danger")
+            return render_template("cadastro_cliente.html", pacotes=pacotes)
+
         novo_cliente = {
             "id": id_cliente,
             "nome": request.form.get('nome', '').strip(),
             "email": request.form.get('email', '').strip(),
-            "esim": request.form.get('esim', '').strip().upper(),
+            "esim": request.form.get("esim", "").strip().upper() or f"ESIM-{id_cliente:05d}",
             "pacote": int(pacote_raw),
             "status": request.form.get('status', 'ativo').strip().lower(),
         }
@@ -198,10 +223,16 @@ def editar_cliente(id_cliente):
             flash('Erro: Pacote selecionado é inválido.', 'danger')
             return render_template('editar_cliente.html', cliente=cliente, pacotes=pacotes)
 
+        erros = _validar_dados_cliente(request.form)
+        if erros:
+            for erro in erros:
+                flash(erro, "danger")
+            return render_template("editar_cliente.html", cliente=cliente, pacotes=pacotes)
+
         novos_dados = {
             "nome": request.form.get('nome', '').strip(),
             "email": request.form.get('email', '').strip(),
-            "esim": request.form.get('esim', '').strip().upper(),
+            "esim": request.form.get("esim", "").strip().upper() or None,  # em branco mantém o atual
             "pacote": int(pacote_raw),
             "status": request.form.get('status', 'ativo').strip().lower(),
         }
