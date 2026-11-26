@@ -27,12 +27,10 @@ STATUS_VALIDOS = ["ativo", "inativo"]
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CAMINHO_CLIENTES_PADRAO = os.path.join(BASE_DIR, "arquivos", "clientes.json")
 
-
 def _remover_acentos(texto: str) -> str:
     """Remove caracteres acentuados para geração de emails padronizados."""
     nfkd = unicodedata.normalize("NFKD", texto)
     return "".join(c for c in nfkd if not unicodedata.combining(c)).lower()
-
 
 def gerar_clientes(quantidade: int = 1000, seed: int = 42) -> list:
     """
@@ -45,7 +43,6 @@ def gerar_clientes(quantidade: int = 1000, seed: int = 42) -> list:
     if quantidade > 90000:
         raise ValueError("Quantidade máxima suportada para IDs únicos de 5 dígitos é 90.000.")
 
-    # Amostragem sem reposição para garantir IDs únicos de 5 dígitos
     ids_unicos = random.sample(range(10000, 100000), quantidade)
     clientes = []
 
@@ -54,19 +51,15 @@ def gerar_clientes(quantidade: int = 1000, seed: int = 42) -> list:
         sobrenome = random.choice(SOBRENOMES)
         nome_completo = f"{primeiro_nome} {sobrenome}"
 
-        # Email sem acentos baseado no nome e ID único para evitar duplicidades
         nome_email = _remover_acentos(primeiro_nome)
         sobrenome_email = _remover_acentos(sobrenome)
         email = f"{nome_email}.{sobrenome_email}{cid % 1000}@email.com"
 
-        # eSIM único com formato padronizado conforme especificação
         esim_codigo = random.randint(10000, 99999)
         esim = f"ESIM-{esim_codigo}"
 
-        # Pacote dentre os 5 válidos definidos na especificação
         pacote = random.choice(PACOTES_VALIDOS)
 
-        # Distribuição de status (85% ativo, 15% inativo)
         status = "ativo" if random.random() < 0.85 else "inativo"
 
         clientes.append({
@@ -80,7 +73,6 @@ def gerar_clientes(quantidade: int = 1000, seed: int = 42) -> list:
 
     return clientes
 
-
 def salvar_clientes_em_arquivo(clientes: list, caminho: str = None) -> str:
     """Salva a lista de clientes em arquivo JSON formatado."""
     caminho_final = caminho or CAMINHO_CLIENTES_PADRAO
@@ -92,7 +84,6 @@ def salvar_clientes_em_arquivo(clientes: list, caminho: str = None) -> str:
         json.dump(clientes, f, indent=4, ensure_ascii=False)
 
     return caminho_final
-
 
 if __name__ == "__main__":
     import argparse

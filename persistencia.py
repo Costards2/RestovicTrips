@@ -2,7 +2,6 @@ import json
 import os
 from typing import Any, Dict, List, Union
 
-# Diretórios e caminhos padrão dos arquivos de persistência
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DIR_ARQUIVOS = os.path.join(BASE_DIR, "arquivos")
 
@@ -10,10 +9,8 @@ CAMINHO_PAISES = os.path.join(DIR_ARQUIVOS, "paises.json")
 CAMINHO_CLIENTES = os.path.join(DIR_ARQUIVOS, "clientes.json")
 CAMINHO_PACOTES = os.path.join(DIR_ARQUIVOS, "pacotes.json")
 
-# Mantém retrocompatibilidade estrita com a Etapa 1
 CAMINHO_ARQUIVO = CAMINHO_PAISES
 
-# Pacotes de serviço padrão definidos na especificação da disciplina
 PACOTES_PADRAO: List[Dict[str, Any]] = [
     {
         "codigo": 101,
@@ -52,7 +49,6 @@ PACOTES_PADRAO: List[Dict[str, Any]] = [
     },
 ]
 
-
 def _resolver_caminho(caminho: Union[str, None], caminho_padrao: str) -> str:
     """Resolve o caminho absoluto garantindo compatibilidade com caminhos relativos."""
     if not caminho:
@@ -61,13 +57,11 @@ def _resolver_caminho(caminho: Union[str, None], caminho_padrao: str) -> str:
         return caminho
     return os.path.join(BASE_DIR, caminho)
 
-
 def _garantir_diretorio(caminho: str) -> None:
     """Cria os diretórios pais caso ainda não existam."""
     diretorio = os.path.dirname(caminho)
     if diretorio and not os.path.exists(diretorio):
         os.makedirs(diretorio, exist_ok=True)
-
 
 def _ler_json(caminho: str, default: Any = None) -> Any:
     """Lê um arquivo JSON de forma segura com encoding UTF-8."""
@@ -79,22 +73,16 @@ def _ler_json(caminho: str, default: Any = None) -> Any:
     except (json.JSONDecodeError, OSError):
         return default if default is not None else []
 
-
 def _gravar_json(caminho: str, dados: Any) -> None:
     """Grava dados em arquivo JSON com formatação legível e encoding UTF-8."""
     _garantir_diretorio(caminho)
     with open(caminho, "w", encoding="utf-8") as f:
         json.dump(dados, f, indent=4, ensure_ascii=False)
 
-
-# ==============================================================================
-# PERSISTÊNCIA DE PAÍSES (ETAPA 1 & COMPATIBILIDADE)
-# ==============================================================================
 def carregar_paises(caminho: str = None) -> List[Dict[str, Any]]:
     """Carrega a lista de países cadastrados."""
     caminho_final = _resolver_caminho(caminho, CAMINHO_PAISES)
     return _ler_json(caminho_final, default=[])
-
 
 def salvar_paises(origem: Any, caminho: str = None) -> None:
     """
@@ -110,19 +98,12 @@ def salvar_paises(origem: Any, caminho: str = None) -> None:
         dados = list(origem)
     _gravar_json(caminho_final, dados)
 
-
-# Aliases idênticos aos da Etapa 1 para manter retrocompatibilidade com app.py e rotas existentes
 def carregar_dados() -> List[Dict[str, Any]]:
     return carregar_paises()
-
 
 def salvar_dados(tabela_hash: Any) -> None:
     salvar_paises(tabela_hash)
 
-
-# ==============================================================================
-# PERSISTÊNCIA DE PACOTES DE SERVIÇO (ETAPA 2)
-# ==============================================================================
 def carregar_pacotes(caminho: str = None) -> List[Dict[str, Any]]:
     """
     Carrega o catálogo de pacotes de dados.
@@ -139,7 +120,6 @@ def carregar_pacotes(caminho: str = None) -> List[Dict[str, Any]]:
         return list(PACOTES_PADRAO)
     return dados
 
-
 def salvar_pacotes(origem: Any, caminho: str = None) -> None:
     """Salva a lista ou dicionário de pacotes no arquivo JSON."""
     caminho_final = _resolver_caminho(caminho, CAMINHO_PACOTES)
@@ -151,16 +131,11 @@ def salvar_pacotes(origem: Any, caminho: str = None) -> None:
         dados = list(origem)
     _gravar_json(caminho_final, dados)
 
-
 def obter_mapa_pacotes(caminho: str = None) -> Dict[int, Dict[str, Any]]:
     """Retorna os pacotes indexados pelo código numérico para consulta rápida O(1)."""
     pacotes = carregar_pacotes(caminho)
     return {int(p["codigo"]): p for p in pacotes}
 
-
-# ==============================================================================
-# PERSISTÊNCIA DE CLIENTES (ETAPA 2)
-# ==============================================================================
 def carregar_clientes(
     caminho: str = None, auto_gerar: bool = True, quantidade: int = 1000
 ) -> List[Dict[str, Any]]:
@@ -185,7 +160,6 @@ def carregar_clientes(
         return clientes
 
     return dados
-
 
 def salvar_clientes(origem: Any, caminho: str = None) -> None:
     """

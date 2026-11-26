@@ -7,18 +7,12 @@ import os
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'chave_secreta_padrao_segura')
 
-# ==============================================================================
-# INICIALIZAÇÃO DAS ESTRUTURAS DE DADOS
-# ==============================================================================
-# 1. Tabela Hash (Países e Cobertura - Etapa 1)
 tabela = TabelaHash()
 dados_iniciais = persistencia.carregar_dados()
 for p in dados_iniciais:
     tabela.inserir(p['codigo'], p)
 
-# 2. Árvore B (Clientes e eSIMs - Etapa 2)
 arvore_clientes = ArvoreB(ordem=5)
-
 
 def carregar_clientes_na_arvore(arvore: ArvoreB = None) -> ArvoreB:
     """Carrega os clientes a partir do arquivo JSON na Árvore B de forma idempotente."""
@@ -27,14 +21,10 @@ def carregar_clientes_na_arvore(arvore: ArvoreB = None) -> ArvoreB:
     alvo.carregar(clientes)
     return alvo
 
-
-# Carga idempotente na Árvore B ao subir a aplicação
 carregar_clientes_na_arvore(arvore_clientes)
 
-# 3. Pacotes de Serviço (Etapa 2)
 pacotes = persistencia.carregar_pacotes()
 mapa_pacotes = persistencia.obter_mapa_pacotes()
-
 
 @app.route('/')
 def index():
@@ -129,7 +119,6 @@ def _comparar_graus_arvore_b(ordens=(2, 3, 5)):
 
     return comparacao
 
-
 @app.route('/estatisticas')
 def estatisticas():
     stats = tabela.obter_estatisticas()
@@ -143,15 +132,12 @@ def estatisticas():
         comparacao_graus=comparacao_graus,
     )
 
-
 @app.route('/clientes')
 def clientes():
     lista = arvore_clientes.listar_ordem()
     return render_template('clientes.html', clientes=lista)
 
-
 STATUS_VALIDOS = ("ativo", "inativo")
-
 
 def _validar_dados_cliente(form):
     """Valida nome, e-mail e status do formulário de cliente e devolve a lista de erros."""
@@ -167,7 +153,6 @@ def _validar_dados_cliente(form):
     if status not in STATUS_VALIDOS:
         erros.append("Erro: Status inválido.")
     return erros
-
 
 @app.route('/clientes/cadastrar', methods=['GET', 'POST'])
 def cadastro_cliente():
@@ -209,7 +194,6 @@ def cadastro_cliente():
 
     return render_template('cadastro_cliente.html', pacotes=pacotes)
 
-
 @app.route('/clientes/editar/<int:id_cliente>', methods=['GET', 'POST'])
 def editar_cliente(id_cliente):
     cliente = arvore_clientes.buscar(id_cliente)
@@ -232,7 +216,7 @@ def editar_cliente(id_cliente):
         novos_dados = {
             "nome": request.form.get('nome', '').strip(),
             "email": request.form.get('email', '').strip(),
-            "esim": request.form.get("esim", "").strip().upper() or None,  # em branco mantém o atual
+            "esim": request.form.get("esim", "").strip().upper() or None,
             "pacote": int(pacote_raw),
             "status": request.form.get('status', 'ativo').strip().lower(),
         }
@@ -244,7 +228,6 @@ def editar_cliente(id_cliente):
         return redirect(url_for('clientes'))
 
     return render_template('editar_cliente.html', cliente=cliente, pacotes=pacotes)
-
 
 @app.route('/clientes/consultar', methods=['GET', 'POST'])
 def consulta_cliente():

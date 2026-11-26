@@ -30,7 +30,7 @@ class TabelaHash:
         atual = self.tabela[indice]
         while atual:
             if atual.chave == chave.upper():
-                return False # Código duplicado
+                return False
             if atual.proximo is None:
                 break
             atual = atual.proximo

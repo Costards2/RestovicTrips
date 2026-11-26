@@ -5,7 +5,6 @@ class Registro:
         self.Chave = chave
         self.Elemento = elemento
 
-
 class Pagina:
     """Nó da Árvore B com capacidade para 'ordem' chaves e 'ordem + 1' ponteiros."""
 
@@ -13,7 +12,6 @@ class Pagina:
         self.n = 0
         self.r = [None for _ in range(ordem)]
         self.p = [None for _ in range(ordem + 1)]
-
 
 class ArvoreB:
     """Árvore B indexada pelo ID único do cliente com instrumentação de desempenho."""
@@ -99,7 +97,6 @@ class ArvoreB:
             self._insere_na_pagina(ap, reg_retorno, ap_retorno)
             return False, reg_retorno, ap_retorno
 
-        # Overflow: divide a página cheia e promove a chave mediana
         self.divisoes += 1
         ap_temp = Pagina(self.ordem)
         ap_temp.n = 0

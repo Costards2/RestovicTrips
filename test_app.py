@@ -8,7 +8,6 @@ from b_tree import ArvoreB
 import persistencia
 from gerar_clientes import gerar_clientes, salvar_clientes_em_arquivo, PACOTES_VALIDOS, STATUS_VALIDOS
 
-
 @pytest.fixture
 def fabrica_cliente():
     """Cria dicionários de clientes padronizados para os testes da Árvore B."""
@@ -25,10 +24,6 @@ def fabrica_cliente():
 
     return _criar
 
-
-# ==============================================================================
-# SUÍTE DE TESTES: TABELA HASH (ETAPA 1)
-# ==============================================================================
 class TestTabelaHash:
     def test_insercao_e_busca_case_insensitive(self):
         th = TabelaHash()
@@ -66,10 +61,6 @@ class TestTabelaHash:
         assert th.buscar("IT") is None
         assert th.remover("IT") is False
 
-
-# ==============================================================================
-# SUÍTE DE TESTES: ÁRVORE B (ETAPA 2)
-# ==============================================================================
 class TestArvoreB:
     def test_arvore_vazia(self):
         ab = ArvoreB(ordem=3)
@@ -161,7 +152,6 @@ class TestArvoreB:
         assert total == 1000
         assert ab.tamanho == 1000
 
-        # Garante que recarregar a mesma base não duplica registros
         ab.carregar(clientes)
         assert ab.tamanho == 1000
 
@@ -173,10 +163,6 @@ class TestArvoreB:
         assert ab.buscar(alvo)["id"] == alvo
         assert ab.ultima_busca["paginas_visitadas"] <= ab.altura()
 
-
-# ==============================================================================
-# SUÍTE DE TESTES: PACOTES DE SERVIÇO (ETAPA 2)
-# ==============================================================================
 class TestPacotes:
     def test_pacotes_contem_codigos_obrigatorios_do_pdf(self):
         pacotes = persistencia.carregar_pacotes()
@@ -186,35 +172,26 @@ class TestPacotes:
     def test_dados_e_validade_conforme_especificacao(self):
         mapa = persistencia.obter_mapa_pacotes()
         
-        # 101 Europa Basic | 5 GB | 15 dias
         assert mapa[101]["nome"] == "Europa Basic"
         assert mapa[101]["dados"] == "5 GB"
         assert mapa[101]["validade"] == "15 dias"
 
-        # 102 Europa Plus | 10 GB | 30 dias
         assert mapa[102]["nome"] == "Europa Plus"
         assert mapa[102]["dados"] == "10 GB"
         assert mapa[102]["validade"] == "30 dias"
 
-        # 201 América Basic | 5 GB | 15 dias
         assert mapa[201]["nome"] == "América Basic"
         assert mapa[201]["dados"] == "5 GB"
         assert mapa[201]["validade"] == "15 dias"
 
-        # 202 América Plus | 15 GB | 30 dias
         assert mapa[202]["nome"] == "América Plus"
         assert mapa[202]["dados"] == "15 GB"
         assert mapa[202]["validade"] == "30 dias"
 
-        # 301 Global | 20 GB | 30 dias
         assert mapa[301]["nome"] == "Global"
         assert mapa[301]["dados"] == "20 GB"
         assert mapa[301]["validade"] == "30 dias"
 
-
-# ==============================================================================
-# SUÍTE DE TESTES: GERADOR DE MASSA DE CLIENTES (ETAPA 2)
-# ==============================================================================
 class TestGeradorClientes:
     def test_geracao_1000_clientes_com_campos_obrigatorios(self):
         clientes = gerar_clientes(quantidade=1000, seed=123)
@@ -222,25 +199,20 @@ class TestGeradorClientes:
 
         ids = set()
         for c in clientes:
-            # ID único de 5 dígitos (10000 a 99999)
             cid = c["id"]
             assert isinstance(cid, int)
             assert 10000 <= cid <= 99999
             assert cid not in ids
             ids.add(cid)
 
-            # Nome e Email
             assert isinstance(c["nome"], str) and len(c["nome"].split()) >= 2
             assert "@" in c["email"] and c["email"].endswith("@email.com")
 
-            # eSIM formatado
             assert c["esim"].startswith("ESIM-")
             assert len(c["esim"].split("-")[1]) == 5
 
-            # Pacote válido
             assert c["pacote"] in PACOTES_VALIDOS
 
-            # Status válido
             assert c["status"] in STATUS_VALIDOS
 
         assert len(ids) == 1000
@@ -250,13 +222,8 @@ class TestGeradorClientes:
         c2 = gerar_clientes(quantidade=50, seed=99)
         assert c1 == c2
 
-
-# ==============================================================================
-# SUÍTE DE TESTES: PERSISTÊNCIA COMPLETA (ETAPA 1 + ETAPA 2)
-# ==============================================================================
 class TestPersistencia:
     def test_preservacao_paises_e_retrocompatibilidade(self):
-        # Carregar via alias antigo e nova função
         dados_antigo = persistencia.carregar_dados()
         paises_novo = persistencia.carregar_paises()
         assert dados_antigo == paises_novo
@@ -288,7 +255,6 @@ class TestPersistencia:
         persistencia.salvar_clientes(ab, caminho=caminho_teste)
         carregados = persistencia.carregar_clientes(caminho=caminho_teste, auto_gerar=False)
 
-        # Salvo pela Árvore B deve estar ordenado por ID (10000, depois 20000)
         assert len(carregados) == 2
         assert carregados[0]["id"] == 10000
         assert carregados[1]["id"] == 20000
@@ -301,15 +267,10 @@ class TestPersistencia:
         assert len(clientes) == 15
         assert os.path.exists(caminho_inexistente)
 
-
-# ==============================================================================
-# SUÍTE DE TESTES: CARGA IDEMPOTENTE NA INICIALIZAÇÃO DA APLICAÇÃO (APP.PY)
-# ==============================================================================
 class TestCargaAppArvoreB:
     def test_carga_inicial_app(self):
         import app
 
-        # Verifica se as estruturas estão instanciadas e povoadas no app
         assert app.tabela is not None
         assert app.tabela.tamanho >= 7
 
@@ -326,14 +287,12 @@ class TestCargaAppArvoreB:
         tamanho_original = len(clientes_arquivo)
         assert app.arvore_clientes.tamanho == tamanho_original
 
-        # Executa recargas sucessivas
         app.carregar_clientes_na_arvore(app.arvore_clientes)
         assert app.arvore_clientes.tamanho == tamanho_original
 
         app.carregar_clientes_na_arvore(app.arvore_clientes)
         assert app.arvore_clientes.tamanho == tamanho_original
 
-        # Busca um cliente arbitrário da base para confirmar integridade
         primeiro_cliente = app.arvore_clientes.listar_ordem()[0]
         cid = primeiro_cliente["id"]
         recuperado = app.arvore_clientes.buscar(cid)

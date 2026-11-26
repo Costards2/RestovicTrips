@@ -84,9 +84,6 @@ FORM_OK = {
 }
  
  
-# ==============================================================================
-# SUÍTE DE TESTES: LISTAGEM DE CLIENTES
-# ==============================================================================
 def test_listagem_em_ordem_de_id(ctx):
     """A listagem mostra os clientes em ordem crescente de ID."""
     resp = ctx.client.get("/clientes")
@@ -96,9 +93,6 @@ def test_listagem_em_ordem_de_id(ctx):
     assert html.index("Maria Silva") < html.index("Joao Souza")
  
  
-# ==============================================================================
-# SUÍTE DE TESTES: CADASTRO DE CLIENTES
-# ==============================================================================
 def test_cadastro_ok(ctx):
     """Cadastro válido insere na árvore, gera o eSIM e persiste."""
     resp = ctx.client.post("/clientes/cadastrar", data=FORM_OK)
@@ -107,7 +101,7 @@ def test_cadastro_ok(ctx):
     novo = ctx.arvore.buscar(10300)
     assert novo["nome"] == "Ana Lima"
     assert novo["pacote"] == 101
-    assert novo["esim"] == "ESIM-10300"  # gerado quando vazio
+    assert novo["esim"] == "ESIM-10300"
     assert len(ctx.salvos) == 1
  
  
@@ -146,9 +140,6 @@ def test_cadastro_dados_invalidos(ctx, campo, valor):
     assert ctx.salvos == []
  
  
-# ==============================================================================
-# SUÍTE DE TESTES: CONSULTA DE CLIENTES E INTEGRAÇÃO ÁRVORE B x HASH
-# ==============================================================================
 def test_consulta_existente(ctx):
     """Consulta por ID (via GET) mostra o cliente encontrado na Árvore B."""
     resp = ctx.client.get("/clientes/consultar?id=10100")
@@ -203,9 +194,6 @@ def test_consulta_id_invalido(ctx, texto):
     assert "ID numérico válido" in pagina(resp)
  
  
-# ==============================================================================
-# SUÍTE DE TESTES: EDIÇÃO DE CLIENTES
-# ==============================================================================
 def test_editar_ok_mantem_id(ctx):
     """Edição válida altera os campos, mantém o ID e preserva o eSIM em branco."""
     dados = {
@@ -223,7 +211,7 @@ def test_editar_ok_mantem_id(ctx):
     assert cliente["pacote"] == 301
     assert cliente["status"] == "inativo"
     assert cliente["id"] == 10100
-    assert cliente["esim"] == "ESIM-10100"  # eSIM em branco mantém o atual
+    assert cliente["esim"] == "ESIM-10100"
     assert len(ctx.salvos) == 1
  
  
@@ -274,9 +262,6 @@ def test_editar_dados_invalidos_nao_altera(ctx, campo, valor):
     assert ctx.salvos == []
  
  
-# ==============================================================================
-# SUÍTE DE TESTES: ESTATÍSTICAS E ETAPA 1 PRESERVADA
-# ==============================================================================
 def test_estatisticas_com_painel_da_arvore_b(ctx):
     """A página de estatísticas mostra o painel da Árvore B."""
     resp = ctx.client.get("/estatisticas")
