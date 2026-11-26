@@ -29,13 +29,16 @@ class ArvoreB:
             "comparacoes": 0,
             "paginas_visitadas": 0,
         }
+        self.ultimo_caminho = []
 
-    def _pesquisar(self, chave, ap, metricas):
+    def _pesquisar(self, chave, ap, metricas, caminho=None):
         """Busca recursiva por chave a partir da página ap."""
         if ap is None:
             return None
 
         metricas["paginas_visitadas"] += 1
+        if caminho is not None:
+            caminho.append([ap.r[idx].Chave for idx in range(ap.n)])
         i = 1
         while i < ap.n and chave > ap.r[i - 1].Chave:
             metricas["comparacoes"] += 1
@@ -47,8 +50,8 @@ class ArvoreB:
                 return ap.r[i - 1]
 
         if chave < ap.r[i - 1].Chave:
-            return self._pesquisar(chave, ap.p[i - 1], metricas)
-        return self._pesquisar(chave, ap.p[i], metricas)
+            return self._pesquisar(chave, ap.p[i - 1], metricas, caminho)
+        return self._pesquisar(chave, ap.p[i], metricas, caminho)
 
     def _insere_na_pagina(self, ap, reg, ap_dir):
         """Desloca registros e ponteiros para inserir ordenadamente na página."""
@@ -140,9 +143,11 @@ class ArvoreB:
     def buscar(self, id_cliente):
         """Busca um cliente pelo ID e registra métricas de páginas visitadas e comparações."""
         metricas = {"comparacoes": 0, "paginas_visitadas": 0}
-        registro = self._pesquisar(int(id_cliente), self.raiz, metricas)
+        caminho = []
+        registro = self._pesquisar(int(id_cliente), self.raiz, metricas, caminho)
 
         self.ultima_busca = metricas
+        self.ultimo_caminho = caminho
         self.comparacoes += metricas["comparacoes"]
         self.paginas_visitadas += metricas["paginas_visitadas"]
 
@@ -202,6 +207,43 @@ class ArvoreB:
             nivel += 1
             atual = atual.p[0]
         return nivel
+
+    def inspecionar_niveis(self, limite_por_nivel=8):
+        """Retorna um resumo visual das páginas por nível da Árvore B."""
+        if self.raiz is None:
+            return []
+
+        niveis = []
+        fila = [self.raiz]
+        nivel_idx = 0
+
+        while fila:
+            total_paginas = len(fila)
+            paginas_resumo = []
+            proxima_fila = []
+
+            for ap in fila:
+                for idx in range(ap.n + 1):
+                    if ap.p[idx] is not None:
+                        proxima_fila.append(ap.p[idx])
+
+                if len(paginas_resumo) < limite_por_nivel:
+                    itens = []
+                    for idx in range(ap.n):
+                        reg = ap.r[idx]
+                        itens.append({"chave": reg.Chave, "elemento": reg.Elemento})
+                    paginas_resumo.append({"n": ap.n, "itens": itens})
+
+            niveis.append({
+                "nivel": nivel_idx,
+                "total_paginas": total_paginas,
+                "paginas": paginas_resumo,
+                "ocultas": max(0, total_paginas - len(paginas_resumo)),
+            })
+            fila = proxima_fila
+            nivel_idx += 1
+
+        return niveis
 
     def estatisticas(self):
         """Retorna os indicadores estruturais e de instrumentação da Árvore B."""

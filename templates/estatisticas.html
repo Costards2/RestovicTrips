@@ -184,6 +184,63 @@
         </div>
         {% endif %}
 
+        <h3 class="h4 mt-4 mb-3">Arquitetura Híbrida &amp; Estrutura Visual da Árvore B</h3>
+        <div class="p-3 rounded-3 border bg-body-tertiary mb-4 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2 small">
+                <span class="badge bg-primary px-2 py-1">{{ modo_indice or 'ArvoreB' }}</span>
+                <span class="fw-semibold">Árvore B (ID &rarr; Byte Offset)</span>
+                <span class="text-secondary">&rarr;</span>
+                <span class="badge bg-secondary-subtle text-secondary-emphasis border px-2 py-1">seek() em clientes.json</span>
+                <span class="text-secondary">+</span>
+                <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle px-2 py-1">Pandas DataFrame (Listagem)</span>
+            </div>
+            <span class="small text-secondary">Cada chave guarda <code>(início, bytes)</code> no disco</span>
+        </div>
+
+        {% if b_niveis %}
+        <div class="d-flex flex-column gap-3 mb-4">
+            {% for nivel in b_niveis %}
+            <div class="p-3 rounded-3 border bg-body-tertiary">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold small text-uppercase text-primary">
+                        {% if nivel.nivel == 0 %}
+                            🌱 Nível {{ nivel.nivel }} (Raiz)
+                        {% elif loop.last %}
+                            🍃 Nível {{ nivel.nivel }} (Folhas)
+                        {% else %}
+                            🌿 Nível {{ nivel.nivel }} (Interno)
+                        {% endif %}
+                    </span>
+                    <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle">
+                        {{ nivel.total_paginas }} página(s)
+                    </span>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-stretch">
+                    {% for pag in nivel.paginas %}
+                    <div class="border rounded-3 bg-body p-2 shadow-sm">
+                        <div class="d-flex flex-wrap gap-1 align-items-center">
+                            {% for item in pag.itens %}
+                            <span class="hash-node font-monospace small" title="ID {{ item.chave }}">
+                                <strong>{{ item.chave }}</strong>
+                                {% if item.elemento is iterable and item.elemento is not mapping and item.elemento|length == 2 %}
+                                <span class="opacity-75 ms-1" style="font-size: 0.72rem;">@{{ item.elemento[0] }}:+{{ item.elemento[1] }}B</span>
+                                {% endif %}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if nivel.ocultas > 0 %}
+                    <div class="border rounded-3 bg-body-secondary px-3 py-2 d-flex align-items-center text-secondary small fw-semibold">
+                        + {{ nivel.ocultas }} página(s) ocultas neste nível
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <h3 class="h4 mt-4 mb-3">Diferencial — Comparador de Graus da Árvore B</h3>
         {% if comparacao_graus %}
         <div class="table-responsive rounded-3 border">

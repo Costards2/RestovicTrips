@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from tabela_hash import TabelaHash
 from b_tree import ArvoreB
+from indice_clientes import IndiceClientesHibrido
 import persistencia
 import os
 
@@ -12,13 +13,17 @@ dados_iniciais = persistencia.carregar_dados()
 for p in dados_iniciais:
     tabela.inserir(p['codigo'], p)
 
-arvore_clientes = ArvoreB(ordem=5)
+arvore_clientes = IndiceClientesHibrido(persistencia.CAMINHO_CLIENTES, ordem=5)
 
-def carregar_clientes_na_arvore(arvore: ArvoreB = None) -> ArvoreB:
+def carregar_clientes_na_arvore(arvore=None):
     """Carrega os clientes a partir do arquivo JSON na Árvore B de forma idempotente."""
     alvo = arvore if arvore is not None else arvore_clientes
-    clientes = persistencia.carregar_clientes()
-    alvo.carregar(clientes)
+    if hasattr(alvo, "indexar"):
+        persistencia.carregar_clientes(caminho=alvo.caminho_json)
+        alvo.indexar()
+    else:
+        clientes = persistencia.carregar_clientes()
+        alvo.carregar(clientes)
     return alvo
 
 carregar_clientes_na_arvore(arvore_clientes)
@@ -124,12 +129,15 @@ def estatisticas():
     stats = tabela.obter_estatisticas()
     b_stats = arvore_clientes.estatisticas()
     comparacao_graus = _comparar_graus_arvore_b()
+    b_niveis = arvore_clientes.inspecionar_niveis() if hasattr(arvore_clientes, "inspecionar_niveis") else []
     return render_template(
         'estatisticas.html',
         stats=stats,
         tabela=tabela.tabela,
         b_stats=b_stats,
         comparacao_graus=comparacao_graus,
+        b_niveis=b_niveis,
+        modo_indice=type(arvore_clientes).__name__,
     )
 
 @app.route('/clientes')
@@ -188,7 +196,8 @@ def cadastro_cliente():
             "status": request.form.get('status', 'ativo').strip().lower(),
         }
         arvore_clientes.inserir(id_cliente, novo_cliente)
-        persistencia.salvar_clientes(arvore_clientes)
+        if not hasattr(arvore_clientes, "indexar"):
+            persistencia.salvar_clientes(arvore_clientes)
         flash('Cliente cadastrado com sucesso!', 'success')
         return redirect(url_for('clientes'))
 
@@ -221,7 +230,8 @@ def editar_cliente(id_cliente):
             "status": request.form.get('status', 'ativo').strip().lower(),
         }
         if arvore_clientes.alterar(id_cliente, novos_dados):
-            persistencia.salvar_clientes(arvore_clientes)
+            if not hasattr(arvore_clientes, "indexar"):
+                persistencia.salvar_clientes(arvore_clientes)
             flash('Dados do cliente atualizados com sucesso!', 'success')
         else:
             flash('Erro ao atualizar o cliente.', 'danger')
@@ -235,6 +245,8 @@ def consulta_cliente():
     pacote = None
     pais = None
     busca_metricas = None
+    busca_caminho = []
+    busca_offset = None
 
     id_raw = (
         request.form.get('id_cliente', '').strip()
@@ -249,6 +261,11 @@ def consulta_cliente():
         else:
             cliente = arvore_clientes.buscar(int(id_raw))
             busca_metricas = dict(arvore_clientes.ultima_busca)
+            busca_caminho = list(getattr(arvore_clientes, "ultimo_caminho", []))
+            if cliente and hasattr(arvore_clientes, "arvore"):
+                loc = arvore_clientes.arvore.buscar(int(id_raw))
+                if isinstance(loc, tuple) and len(loc) == 2:
+                    busca_offset = {"inicio": loc[0], "tamanho": loc[1]}
             if not cliente:
                 flash('Cliente não encontrado na Árvore B.', 'danger')
             else:
@@ -264,6 +281,8 @@ def consulta_cliente():
         pacote=pacote,
         pais=pais,
         busca_metricas=busca_metricas,
+        busca_caminho=busca_caminho,
+        busca_offset=busca_offset,
     )
 
 if __name__ == '__main__':

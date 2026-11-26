@@ -300,3 +300,48 @@ class TestCargaAppArvoreB:
         assert recuperado is not None
         assert recuperado["id"] == cid
         assert recuperado["pacote"] in PACOTES_VALIDOS
+
+
+class TestIndiceClientesHibrido:
+    def test_indexar_inserir_append_alterar_e_listar(self, tmp_path):
+        import json
+        from indice_clientes import IndiceClientesHibrido
+
+        caminho = tmp_path / "clientes_hibrido.json"
+        iniciais = [
+            {"id": 10002, "nome": "Ana", "email": "ana@email.com", "esim": "ESIM-10002", "pacote": 101, "status": "ativo"},
+            {"id": 10001, "nome": "Beto", "email": "beto@email.com", "esim": "ESIM-10001", "pacote": 102, "status": "ativo"},
+        ]
+        caminho.write_text(json.dumps(iniciais, indent=4, ensure_ascii=False), encoding="utf-8")
+
+        indice = IndiceClientesHibrido(str(caminho), ordem=3)
+        assert indice.indexar() == 2
+        assert indice.tamanho == 2
+
+        novo = {"id": 10003, "nome": "Carla", "email": "carla@email.com", "esim": "ESIM-10003", "pacote": 201, "status": "ativo"}
+        indice.inserir(10003, novo)
+        assert indice.tamanho == 3
+        assert indice.buscar(10003)["nome"] == "Carla"
+        assert indice.ultima_busca["paginas_visitadas"] >= 1
+
+        assert indice.alterar(10001, {"nome": "Beto Atualizado Silva", "status": "inativo"}) is True
+        atualizado = indice.buscar(10001)
+        assert atualizado["nome"] == "Beto Atualizado Silva"
+        assert atualizado["status"] == "inativo"
+        assert indice.buscar(10003)["nome"] == "Carla"
+
+        ordenados = indice.listar_ordem()
+        assert [c["id"] for c in ordenados] == [10001, 10002, 10003]
+        assert indice.estatisticas()["total_registros"] == 3
+
+    def test_indexar_e_inserir_em_arquivo_inexistente(self, tmp_path):
+        from indice_clientes import IndiceClientesHibrido
+
+        caminho = tmp_path / "novo_clientes.json"
+        indice = IndiceClientesHibrido(str(caminho), ordem=3)
+        assert indice.indexar() == 0
+
+        indice.inserir(10010, {"id": 10010, "nome": "Duda", "email": "duda@email.com", "esim": "ESIM-10010", "pacote": 101, "status": "ativo"})
+        assert indice.tamanho == 1
+        assert indice.buscar(10010)["nome"] == "Duda"
+        assert len(indice.listar_ordem()) == 1
